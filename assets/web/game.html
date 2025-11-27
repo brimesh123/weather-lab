@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Weather Spinner</title>
+
+    <!-- External Assets -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Palette Refinement */
+            --primary: #5c6bc0;
+            /* Indigo */
+            --primary-dark: #3949ab;
+            --accent: #26c6da;
+            /* Cyan */
+            --accent-dark: #0097a7;
+            --bg-gradient-1: #e3f2fd;
+            --bg-gradient-2: #f3e5f5;
+            --card-bg: #ffffff;
+            --text: #263238;
+            --text-light: #78909c;
+
+            --success: #66bb6a;
+            --error: #ef5350;
+            --gold: #ffca28;
+            --gold-dark: #ff6f00;
+
+            --nav-height: 70px;
+            --header-height: 70px;
+            --border-radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+            font-family: 'Nunito', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            color: var(--text);
+        }
+
+        /* --- HEADER --- */
+        header {
+            height: var(--header-height);
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 10;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border-bottom-left-radius: var(--border-radius);
+            border-bottom-right-radius: var(--border-radius);
+        }
+
+        .stats-group {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .top-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .lives-container {
+            display: flex;
+            gap: 4px;
+            margin-right: 15px;
+            font-size: 16px;
+            color: #ff5252;
+        }
+
+        .heart-icon {
+            transition: transform 0.2s, opacity 0.2s;
+        }
+
+        .heart-lost {
+            opacity: 0.3;
+            transform: scale(0.8);
+            filter: grayscale(100%);
+        }
+
+        .level-badge {
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+
+        .progress-container {
+            width: 100%;
+            max-width: 180px;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+            width: 0%;
+            transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .currency-display {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            padding: 6px 14px;
+            border-radius: 20px;
+            box-shadow: 0 4px 0 rgba(0, 0, 0, 0.05);
+            border: 2px solid #eceff1;
+            font-weight: 900;
+            color: var(--gold-dark);
+            font-size: 16px;
+            margin-left: 10px;
+            min-width: 70px;
+            justify-content: center;
+            position: relative;
+            z-index: 20;
+        }
+
+        .coin-icon {
+            color: var(--gold);
+            margin-right: 6px;
+            font-size: 18px;
+            filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.1));
+        }
+
+        /* --- SYSTEM CONTROLS --- */
+        .system-controls {
+            position: absolute;
+            top: 85px;
+            /* Below header */
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 5;
+        }
+
+        .control-btn {
+            background: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            color: var(--text-light);
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            transition: transform 0.1s;
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        .control-btn.active-sound {
+            color: var(--primary);
+            background: #e8eaf6;
+        }
+
+        /* --- MAIN VIEWPORT --- */
+        #viewport {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            padding-top: 60px;
+            /* Space for system controls */
+            padding-bottom: 100px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            transform: scale(0.98);
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: auto;
+            transform: scale(1);
+        }
+
+        /* --- GAME SCREEN --- */
+        .machine-container {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 25px;
+            box-shadow: 0 10px 40px rgba(92, 107, 192, 0.2);
+            margin-bottom: 25px;
+            text-align: center;
+            position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .slots-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            background: #eceff1;
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
+            border: 4px solid #fff;
+        }
+
+        .slot {
+            width: 75px;
+            height: 95px;
+            background: white;
+            border-radius: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 42px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 0 #cfd8dc;
+            border: 1px solid #cfd8dc;
+        }
+
+        .slot-blur {
+            animation: slotBlur 0.1s infinite linear;
+            filter: blur(4px);
+            opacity: 0.7;
+        }
+
+        .operator {
+            color: var(--primary-dark);
+            font-size: 24px;
+            font-weight: 900;
+        }
+
+        .btn-main {
+            background: linear-gradient(to bottom, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 18px;
+            font-size: 18px;
+            font-family: inherit;
+            font-weight: 900;
+            border-radius: 18px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #283593, 0 10px 20px rgba(92, 107, 192, 0.4);
+            transition: all 0.1s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-main:after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(255, 255, 255, 0.2), transparent);
+            pointer-events: none;
+        }
+
+        .btn-main:active {
+            transform: translateY(6px);
+            box-shadow: 0 0 0 #283593;
+        }
+
+        .btn-main:disabled {
+            background: #b0bec5;
+            box-shadow: none;
+            transform: translateY(6px);
+            cursor: not-allowed;
+            color: #eceff1;
+        }
+
+        /* Quiz Section */
+        #quiz-section {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+        }
+
+        #quiz-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .clue-card {
+            background: white;
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 6px solid var(--accent);
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .option-btn {
+            background: white;
+            border: none;
+            border-radius: 18px;
+            padding: 15px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 0 #cfd8dc;
+            position: relative;
+        }
+
+        .option-btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .option-icon {
+            font-size: 36px;
+            margin-bottom: 8px;
+            transition: transform 0.2s;
+        }
+
+        .option-text {
+            font-size: 11px;
+            font-weight: 800;
+            text-align: center;
+            line-height: 1.2;
+            color: var(--text-light);
+        }
+
+        .option-btn:hover .option-icon {
+            transform: scale(1.1);
+        }
+
+        /* --- COLLECTION SCREEN --- */
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            padding-bottom: 100px;
+        }
+
+        .collect-card {
+            background: white;
+            border-radius: 18px;
+            padding: 15px 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            opacity: 0.6;
+            filter: grayscale(1);
+            transform: scale(0.95);
+            transition: all 0.3s;
+            min-height: 100px;
+        }
+
+        .collect-card.unlocked {
+            opacity: 1;
+            filter: grayscale(0);
+            transform: scale(1);
+            border-bottom: 4px solid var(--success);
+            box-shadow: 0 8px 20px rgba(102, 187, 106, 0.2);
+        }
+
+        /* --- BOTTOM NAV --- */
+        .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 70px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 35px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            z-index: 50;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #b0bec5;
+            font-size: 24px;
+            transition: all 0.3s;
+            cursor: pointer;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+        }
+
+        .nav-item.active {
+            color: white;
+            background: var(--primary);
+            transform: translateY(-20px) scale(1.1);
+            box-shadow: 0 10px 20px rgba(92, 107, 192, 0.4);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes slotBlur {
+            0% {
+                transform: translateY(-10px);
+                filter: blur(3px);
+            }
+
+            50% {
+                transform: translateY(10px);
+                filter: blur(3px);
+            }
+
+            100% {
+                transform: translateY(-10px);
+                filter: blur(3px);
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+
+            80% {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-5px);
+            }
+
+            75% {
+                transform: translateX(5px);
+            }
+        }
+
+        .shake-anim {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        .flying-coin {
+            position: fixed;
+            font-size: 28px;
+            pointer-events: none;
+            z-index: 3000;
+            /* Improved Transition: Simple ease-in for flight looks more natural */
+            transition: top 0.6s ease-in, left 0.6s ease-in, transform 0.6s linear, opacity 0.2s linear;
+            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+        }
+
+        /* Burst state (no transition or fast transition) */
+        .flying-coin.burst {
+            transition: transform 0.3s ease-out;
+        }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(40, 53, 147, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: white;
+            width: 85%;
+            max-width: 400px;
+            border-radius: 30px;
+            padding: 30px;
+            text-align: center;
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-overlay.open .modal {
+            transform: scale(1);
+        }
+
+        .new-discovery-icon {
+            font-size: 90px;
+            margin: 20px 0;
+            filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.15));
+            animation: popIn 0.5s 0.2s backwards;
+        }
+
+        .game-over-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            color: var(--error);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="stats-group">
+            <div class="top-row">
+                <!-- Lives Display -->
+                <div class="lives-container" id="lives-display">
+                    <i class="fas fa-heart heart-icon"></i>
+                    <i class="fas fa-heart heart-icon"></i>
+                    <i class="fas fa-heart heart-icon"></i>
+                </div>
+                <div class="level-badge">LVL <span id="level-num">1</span></div>
+            </div>
+
+            <div class="progress-container">
+                <div class="progress-fill" id="xp-bar"></div>
+            </div>
+        </div>
+
+        <div class="currency-display" id="coin-target">
+            <i class="fas fa-coins coin-icon"></i>
+            <span id="coin-count">0</span>
+        </div>
+    </header>
+
+    <!-- System Controls -->
+    <div class="system-controls">
+        <button class="control-btn" onclick="game.resetConfirm()" title="Reset Game">
+            <i class="fas fa-redo-alt"></i>
+        </button>
+        <button class="control-btn" onclick="audioManager.toggle()" id="sound-btn" title="Toggle Sound">
+            <i class="fas fa-volume-mute"></i>
+        </button>
+    </div>
+
+    <!-- Main Viewport -->
+    <div id="viewport">
+
+        <!-- GAME SCREEN -->
+        <div id="screen-game" class="screen active">
+
+            <div class="machine-container">
+                <div class="slots-wrapper">
+                    <div class="slot" id="slot-1">
+                        <div class="slot-content">❓</div>
+                    </div>
+                    <div class="operator"><i class="fas fa-plus"></i></div>
+                    <div class="slot" id="slot-2">
+                        <div class="slot-content">❓</div>
+                    </div>
+                </div>
+
+                <button class="btn-main" id="spin-btn" onclick="game.spin()">
+                    <i class="fas fa-cloud-sun-rain"></i> SPIN WEATHER
+                </button>
+            </div>
+
+            <div id="quiz-section">
+                <div class="clue-card" id="clue-text">
+                    Loading clue...
+                </div>
+                <div class="options-grid" id="options-container">
+                    <!-- Options injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- COLLECTION SCREEN -->
+        <div id="screen-collection" class="screen">
+            <h2 style="text-align: center; margin-bottom: 25px; color: var(--primary-dark); font-size: 22px;">
+                <i class="fas fa-book-open"></i> Weather Guide
+            </h2>
+            <div class="collection-grid" id="collection-grid">
+                <!-- Items injected via JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="ui.switchScreen('game', this)">
+            <i class="fas fa-gamepad"></i>
+        </div>
+        <div class="nav-item" onclick="ui.switchScreen('collection', this)">
+            <!-- UPDATED ICON -->
+            <i class="fas fa-shopping-bag"></i>
+        </div>
+    </div>
+
+    <!-- New Discovery Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal">
+            <h2 style="color: var(--gold-dark); margin:0; font-size: 24px;">NEW WEATHER DISCOVERED!</h2>
+            <div class="new-discovery-icon" id="modal-icon">🌟</div>
+            <h3 id="modal-name" style="margin: 0 0 10px 0; color: var(--primary-dark); font-size: 28px;">Element</h3>
+            <p id="modal-desc" style="color: var(--text-light); font-size: 15px; margin-bottom: 25px;">Description goes
+                here.</p>
+            <button class="btn-main" id="modal-ok-btn">AWESOME!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Modal -->
+    <div class="modal-overlay" id="modal-gameover">
+        <div class="modal">
+            <div class="game-over-icon"><i class="fas fa-heart-broken"></i></div>
+            <h2 style="color: var(--error); margin:0 0 10px 0;">GAME OVER</h2>
+            <p style="color: var(--text); margin-bottom: 25px;">You ran out of magic! The lab is resetting...</p>
+            <button class="btn-main" onclick="game.resetGame()">TRY AGAIN</button>
+        </div>
+    </div>
+
+    <script>
+        /* --- WEATHER DATA --- */
+        const DATA = {
+            baseIngredients: ["Sun", "Water", "Air", "Earth", "Cold", "Heat", "Energy"],
+            recipes: [
+                { res: "Steam", ing: ["Water", "Sun"], desc: "Water gets hot and turns to gas!" },
+                { res: "Cloud", ing: ["Steam", "Air"], desc: "Fluffy water floating in the sky." },
+                { res: "Rain", ing: ["Cloud", "Water"], desc: "Water falling from the clouds." },
+                { res: "Ice", ing: ["Water", "Cold"], desc: "Solid frozen water. Brrr!" },
+                { res: "Snow", ing: ["Rain", "Cold"], desc: "Soft white frozen crystals." },
+                { res: "Puddle", ing: ["Rain", "Earth"], desc: "A splash of water on the ground." },
+                { res: "Mud", ing: ["Puddle", "Earth"], desc: "Wet, sticky, messy dirt!" },
+                { res: "Plant", ing: ["Earth", "Water"], desc: "Growing life from the earth." },
+                { res: "Tree", ing: ["Plant", "Sun"], desc: "A tall plant with a trunk." },
+                { res: "Forest", ing: ["Tree", "Tree"], desc: "A place with many trees." },
+                { res: "Seed", ing: ["Plant", "Earth"], desc: "A baby plant waiting to grow." },
+                { res: "Flower", ing: ["Plant", "Sun"], desc: "A colorful bloom." },
+                { res: "Garden", ing: ["Flower", "Flower"], desc: "A pretty place full of flowers." },
+                { res: "Storm", ing: ["Cloud", "Energy"], desc: "Dark clouds with energy!" },
+                { res: "Lightning", ing: ["Storm", "Energy"], desc: "Electric sparks from the sky." },
+                { res: "Wind", ing: ["Air", "Air"], desc: "Moving air that blows." },
+                { res: "Tornado", ing: ["Wind", "Wind"], desc: "A spinning wind storm!" },
+                { res: "Sand", ing: ["Earth", "Wind"], desc: "Tiny rocks on the beach." },
+                { res: "Glass", ing: ["Sand", "Sun"], desc: "Sand melted by heat." },
+                { res: "Dust", ing: ["Earth", "Air"], desc: "Tiny earth particles in air." },
+                { res: "Smog", ing: ["Fog", "Smoke"], desc: "Dirty fog." },
+                { res: "Fog", ing: ["Cloud", "Earth"], desc: "Clouds on the ground." },
+                { res: "Sky", ing: ["Air", "Sun"], desc: "The blue air above us." },
+                { res: "Rainbow", ing: ["Rain", "Sun"], desc: "Sunlight through rain drops." },
+                { res: "Night", ing: ["Sky", "Dark"], desc: "When the sun goes away." },
+                { res: "Moon", ing: ["Night", "Rock"], desc: "The rock in the night sky." },
+                { res: "Star", ing: ["Night", "Light"], desc: "A tiny sun far away." },
+                { res: "Galaxy", ing: ["Star", "Star"], desc: "Billions of stars swirling." },
+                { res: "Eclipse", ing: ["Sun", "Moon"], desc: "Moon blocking the sun." },
+                { res: "Lava", ing: ["Earth", "Sun"], desc: "Melted rock from underground." },
+                { res: "Obsidian", ing: ["Lava", "Water"], desc: "Volcanic black glass." },
+                { res: "Stone", ing: ["Lava", "Air"], desc: "Hard rock." },
+                { res: "Fire", ing: ["Tree", "Sun"], desc: "Hot burning energy." },
+                { res: "Ash", ing: ["Fire", "Tree"], desc: "Powder left after fire." },
+                { res: "Smoke", ing: ["Fire", "Air"], desc: "Cloudy air from fire." }
+            ],
+            icons: {
+                "Sun": "☀️", "Water": "💧", "Air": "💨", "Earth": "🟫", "Cold": "❄️", "Heat": "🔥", "Light": "💡", "Energy": "⚡", "Rock": "🪨",
+                "Steam": "♨️", "Cloud": "☁️", "Rain": "🌧️", "Ice": "🧊", "Snow": "🌨️", "Puddle": "💧", "Mud": "💩",
+                "Plant": "🌱", "Tree": "🌳", "Forest": "🌲", "Seed": "🌰", "Flower": "🌻", "Garden": "🏡",
+                "Storm": "⛈️", "Lightning": "🌩️", "Wind": "🌬️", "Tornado": "🌪️", "Sand": "⏳", "Glass": "🥃", "Dust": "🌫️", "Smog": "🏭", "Fog": "🌫️",
+                "Sky": "🟦", "Rainbow": "🌈", "Night": "🌙", "Moon": "🌔", "Star": "⭐", "Galaxy": "🌌", "Eclipse": "🌑",
+                "Lava": "🌋", "Obsidian": "🖤", "Stone": "🗿", "Fire": "🔥", "Ash": "🌑", "Smoke": "💨"
+            }
+        };
+
+        /* --- AUDIO MANAGER --- */
+        const audioManager = {
+            ctx: null,
+            enabled: false,
+
+            init: function () {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                this.ctx = new AudioContext();
+            },
+
+            toggle: function () {
+                if (!this.ctx) this.init();
+                this.enabled = !this.enabled;
+
+                const btn = document.getElementById('sound-btn');
+                const icon = btn.querySelector('i');
+
+                if (this.enabled) {
+                    if (this.ctx.state === 'suspended') this.ctx.resume();
+                    icon.classList.remove('fa-volume-mute');
+                    icon.classList.add('fa-volume-up');
+                    btn.classList.add('active-sound');
+                    this.playTone(600, 'sine', 0.1);
+                } else {
+                    icon.classList.remove('fa-volume-up');
+                    icon.classList.add('fa-volume-mute');
+                    btn.classList.remove('active-sound');
+                }
+            },
+
+            playTone: function (freq, type, duration, vol = 0.1) {
+                if (!this.enabled) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+                gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + duration);
+            },
+
+            playWin: function () {
+                if (!this.enabled) return;
+                [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.3, 0.1), i * 80));
+            },
+
+            playCoin: function () {
+                if (!this.enabled) return;
+                this.playTone(1200, 'sine', 0.1, 0.05);
+                setTimeout(() => this.playTone(1800, 'sine', 0.2, 0.05), 50);
+            },
+
+            playSpin: function () {
+                // Louder, distinct "tick" sound
+                this.playTone(300 + Math.random() * 200, 'square', 0.05, 0.1);
+            },
+
+            playError: function () {
+                if (!this.enabled) return;
+                this.playTone(150, 'sawtooth', 0.3, 0.2);
+                setTimeout(() => this.playTone(100, 'sawtooth', 0.3, 0.2), 100);
+            }
+        };
+
+        /* --- UI CONTROLLER --- */
+        const ui = {
+            switchScreen: function (screenName, navEl) {
+                document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+                navEl.classList.add('active');
+
+                document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
+                document.getElementById(`screen-${screenName}`).classList.add('active');
+
+                if (screenName === 'collection') {
+                    game.renderCollection();
+                }
+            },
+
+            updateLives: function (lives) {
+                const hearts = document.querySelectorAll('.heart-icon');
+                hearts.forEach((h, i) => {
+                    if (i < lives) {
+                        h.classList.remove('heart-lost');
+                    } else {
+                        h.classList.add('heart-lost');
+                    }
+                });
+            },
+
+            animateCoins: function (amount) {
+                // START Point: The Machine Container (Spin Mixer)
+                const startEl = document.querySelector('.machine-container');
+                const startRect = startEl.getBoundingClientRect();
+
+                // END Point: The Coin Wallet in Header
+                const targetRect = document.getElementById('coin-target').getBoundingClientRect();
+
+                const startX = startRect.left + (startRect.width / 2);
+                const startY = startRect.top + (startRect.height / 2);
+
+                const targetX = targetRect.left + (targetRect.width / 2);
+                const targetY = targetRect.top + (targetRect.height / 2);
+
+                for (let i = 0; i < amount; i++) {
+                    setTimeout(() => {
+                        const coin = document.createElement('div');
+                        coin.innerHTML = '<i class="fas fa-coins"></i>';
+                        coin.className = 'flying-coin burst'; // Initial class for simple spawn
+                        coin.style.color = 'gold';
+                        coin.style.left = `${startX}px`;
+                        coin.style.top = `${startY}px`;
+                        document.body.appendChild(coin);
+
+                        // Initial burst
+                        const scatterX = (Math.random() - 0.5) * 80;
+                        const scatterY = (Math.random() - 0.5) * 80 - 30;
+
+                        // Force Reflow
+                        void coin.offsetWidth;
+
+                        // Stage 1: Burst out (Fast, no magnet effect yet)
+                        coin.style.transform = `translate(${scatterX}px, ${scatterY}px) scale(1.3)`;
+
+                        // Stage 2: Fly to target (Remove burst class to enable smooth ease-in)
+                        setTimeout(() => {
+                            coin.classList.remove('burst');
+                            coin.style.left = `${targetX}px`;
+                            coin.style.top = `${targetY}px`;
+                            coin.style.transform = `translate(0, 0) scale(0.5)`; // Reset transform offset
+                            coin.style.opacity = 0;
+                        }, 250); // Shorter wait for snappier feel
+
+                        setTimeout(() => {
+                            coin.remove();
+                            audioManager.playCoin();
+                            game.addCoins(10);
+                        }, 850); // Matched with transition duration
+
+                    }, i * 120);
+                }
+            },
+
+            showModal: function (itemKey, onConfirm) {
+                const recipe = DATA.recipes.find(r => r.res === itemKey) || { desc: "A basic element." };
+                document.getElementById('modal-icon').innerText = DATA.icons[itemKey];
+                document.getElementById('modal-name').innerText = itemKey;
+                document.getElementById('modal-desc').innerText = recipe.desc;
+
+                const overlay = document.getElementById('modal-overlay');
+                const btn = document.getElementById('modal-ok-btn');
+
+                // Remove old listeners
+                const newBtn = btn.cloneNode(true);
+                btn.parentNode.replaceChild(newBtn, btn);
+
+                newBtn.onclick = () => {
+                    overlay.classList.remove('open');
+                    if (onConfirm) onConfirm();
+                };
+
+                overlay.classList.add('open');
+                audioManager.playWin();
+            },
+
+            showGameOver: function () {
+                document.getElementById('modal-gameover').classList.add('open');
+            },
+
+            hideGameOver: function () {
+                document.getElementById('modal-gameover').classList.remove('open');
+            }
+        };
+
+        /* --- GAME LOGIC --- */
+        const game = {
+            inventory: [],
+            coins: 0,
+            xp: 0,
+            level: 1,
+            lives: 3,
+            currentTarget: null,
+
+            init: function () {
+                // Initialize with base ingredients if empty
+                if (this.inventory.length === 0) {
+                    this.inventory = [...DATA.baseIngredients];
+                }
+                this.updateXP();
+                this.updateCoins();
+                ui.updateLives(this.lives);
+                this.renderCollection();
+            },
+
+            resetConfirm: function () {
+                if (confirm("Are you sure you want to reset your progress?")) {
+                    this.resetGame();
+                }
+            },
+
+            resetGame: function () {
+                this.inventory = [...DATA.baseIngredients];
+                this.coins = 0;
+                this.xp = 0;
+                this.lives = 3;
+                this.level = 1;
+
+                ui.hideGameOver();
+                ui.updateLives(this.lives);
+
+                // Reset Level Text Manually
+                document.getElementById('level-num').innerText = "1";
+                document.getElementById('xp-bar').style.width = "0%";
+
+                this.init();
+
+                // Reset UI state
+                document.getElementById('spin-btn').disabled = false;
+                document.getElementById('quiz-section').classList.remove('visible');
+                document.getElementById('screen-game').scrollTo({ top: 0, behavior: 'smooth' });
+            },
+
+            spin: function () {
+                if (!audioManager.ctx) audioManager.toggle();
+
+                const btn = document.getElementById('spin-btn');
+                const quizSection = document.getElementById('quiz-section');
+
+                btn.disabled = true;
+                quizSection.classList.remove('visible');
+
+                // Logic: Prioritize new discoveries
+                let possibilities = [];
+                let unlockedPossibilities = [];
+
+                DATA.recipes.forEach(r => {
+                    if (this.inventory.includes(r.ing[0]) && this.inventory.includes(r.ing[1])) {
+                        if (!this.inventory.includes(r.res)) {
+                            possibilities.push(r);
+                        } else {
+                            unlockedPossibilities.push(r);
+                        }
+                    }
+                });
+
+                if (possibilities.length === 0 && unlockedPossibilities.length > 0) {
+                    possibilities = unlockedPossibilities;
+                } else if (possibilities.length === 0) {
+                    possibilities = unlockedPossibilities; // Failsafe
+                }
+
+                this.currentTarget = possibilities[Math.floor(Math.random() * possibilities.length)];
+
+                // Animate Slots
+                const slot1 = document.getElementById('slot-1');
+                const slot2 = document.getElementById('slot-2');
+                const slotContent1 = slot1.querySelector('.slot-content');
+                const slotContent2 = slot2.querySelector('.slot-content');
+
+                slotContent1.classList.add('slot-blur');
+                slotContent2.classList.add('slot-blur');
+
+                let count = 0;
+                const interval = setInterval(() => {
+                    const keys = Object.keys(DATA.icons);
+                    slotContent1.innerText = DATA.icons[keys[Math.floor(Math.random() * keys.length)]];
+                    slotContent2.innerText = DATA.icons[keys[Math.floor(Math.random() * keys.length)]];
+                    audioManager.playSpin();
+
+                    count++;
+                    if (count > 15) {
+                        clearInterval(interval);
+                        this.stopSpin(slotContent1, slotContent2);
+                    }
+                }, 80);
+            },
+
+            stopSpin: function (el1, el2) {
+                el1.classList.remove('slot-blur');
+                el2.classList.remove('slot-blur');
+
+                el1.innerText = DATA.icons[this.currentTarget.ing[0]];
+                el2.innerText = DATA.icons[this.currentTarget.ing[1]];
+
+                audioManager.playTone(300, 'square', 0.1);
+
+                setTimeout(() => {
+                    this.showQuiz();
+                }, 500);
+            },
+
+            showQuiz: function () {
+                const section = document.getElementById('quiz-section');
+                const clue = document.getElementById('clue-text');
+                const container = document.getElementById('options-container');
+
+                clue.innerHTML = `What do you get if you mix <span style="color:var(--primary)">${this.currentTarget.ing[0]}</span> + <span style="color:var(--primary)">${this.currentTarget.ing[1]}</span>?`;
+
+                container.innerHTML = '';
+                let options = [this.currentTarget.res];
+                const allItems = Object.keys(DATA.icons);
+
+                while (options.length < 3) {
+                    const r = allItems[Math.floor(Math.random() * allItems.length)];
+                    if (!options.includes(r) && r !== this.currentTarget.res) options.push(r);
+                }
+
+                options.sort(() => Math.random() - 0.5);
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'option-btn';
+                    btn.innerHTML = `<div class="option-icon">${DATA.icons[opt]}</div><div class="option-text">${opt}</div>`;
+                    btn.onclick = (e) => this.checkAnswer(opt, e.currentTarget);
+                    container.appendChild(btn);
+                });
+
+                section.classList.add('visible');
+                // Scroll slightly to show quiz
+                document.getElementById('screen-game').scrollTop = 200;
+            },
+
+            checkAnswer: function (answer, element) {
+                if (answer === this.currentTarget.res) {
+                    // CORRECT
+                    element.style.background = "#e8f5e9";
+                    element.style.border = "2px solid var(--success)";
+
+                    const isNew = !this.inventory.includes(answer);
+
+                    if (isNew) {
+                        this.inventory.push(answer);
+                        this.xp += 25;
+                        // Wait slightly then show modal
+                        setTimeout(() => {
+                            ui.showModal(answer, () => {
+                                // Animation happens AFTER clicking "Awesome"
+                                ui.animateCoins(5);
+                                this.resetTurn();
+                            });
+                        }, 300);
+                    } else {
+                        // Repeat find
+                        audioManager.playWin();
+                        this.xp += 5;
+                        ui.animateCoins(2);
+                        this.resetTurn();
+                    }
+                    this.updateXP();
+
+                } else {
+                    // WRONG
+                    audioManager.playError();
+                    element.style.background = "#ffebee";
+                    element.style.border = "2px solid var(--error)";
+                    element.classList.add('shake-anim');
+                    element.disabled = true;
+
+                    this.lives--;
+                    ui.updateLives(this.lives);
+
+                    if (this.lives <= 0) {
+                        setTimeout(() => ui.showGameOver(), 500);
+                    }
+                }
+            },
+
+            resetTurn: function () {
+                setTimeout(() => {
+                    document.getElementById('spin-btn').disabled = false;
+                    document.getElementById('quiz-section').classList.remove('visible');
+                    // Reset scroll
+                    document.getElementById('screen-game').scrollTo({ top: 0, behavior: 'smooth' });
+                }, 1000);
+            },
+
+            addCoins: function (amount) {
+                this.coins += amount;
+                this.updateCoins();
+            },
+
+            updateCoins: function () {
+                const el = document.getElementById('coin-count');
+                el.innerText = this.coins;
+                el.parentElement.style.transform = "scale(1.1)";
+                setTimeout(() => el.parentElement.style.transform = "scale(1)", 100);
+            },
+
+            updateXP: function () {
+                const total = Object.keys(DATA.icons).length;
+                const current = this.inventory.length;
+
+                this.level = Math.floor(this.xp / 100) + 1;
+
+                document.getElementById('level-num').innerText = this.level;
+
+                const pct = (current / total) * 100;
+                document.getElementById('xp-bar').style.width = `${pct}%`;
+            },
+
+            renderCollection: function () {
+                const grid = document.getElementById('collection-grid');
+                grid.innerHTML = "";
+
+                Object.keys(DATA.icons).sort().forEach(key => {
+                    const isUnlocked = this.inventory.includes(key);
+                    const div = document.createElement('div');
+                    div.className = `collect-card ${isUnlocked ? 'unlocked' : ''}`;
+                    div.innerHTML = `
+                        <div style="font-size: 30px; margin-bottom:5px;">${isUnlocked ? DATA.icons[key] : '🔒'}</div>
+                        <div style="font-size: 10px; font-weight: bold; text-align:center; color: var(--text);">${isUnlocked ? key : '???'}</div>
+                    `;
+                    grid.appendChild(div);
+                });
+            }
+        };
+
+        // Start Game
+        game.init();
+
+    </script>
+</body>
+
+</html>

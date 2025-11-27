@@ -1,0 +1,47 @@
+name: weather_spinner
+description: "Weather Spinner - Discover weather phenomena by combining elements! An educational and fun weather game."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  webview_flutter: ^4.2.1
+  google_fonts: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_native_splash: ^2.3.10
+  flutter_launcher_icons: ^0.13.1
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/web/
+    - assets/splash/
+
+# Splash Screen Configuration
+# We use a custom Flutter splash screen for full-screen support
+# This native splash is just a placeholder transition
+flutter_native_splash:
+  color: "#0a1025" # Dark blue from your image background
+  # No image here - we want a clean transition to our custom splash
+  android: true
+  ios: true
+  web: false
+  fullscreen: true
+
+# App Icon Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/logo.png"
+  adaptive_icon_background: "#0a1025" # Dark blue background
+  adaptive_icon_foreground: "assets/logo.png"
+

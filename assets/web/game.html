@@ -6,18 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Weather Spinner</title>
 
-    <!-- External Assets -->
+    <!-- External Assets: FontAwesome for UI icons, Google Fonts for typography -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
-            /* Palette Refinement */
-            --primary: #5c6bc0;
-            /* Indigo */
+            /* Color Palette */
+            --primary: #5c6bc0; /* Indigo */
             --primary-dark: #3949ab;
-            --accent: #26c6da;
-            /* Cyan */
+            --accent: #26c6da; /* Cyan */
             --accent-dark: #0097a7;
             --bg-gradient-1: #e3f2fd;
             --bg-gradient-2: #f3e5f5;
@@ -30,7 +28,7 @@
             --gold: #ffca28;
             --gold-dark: #ff6f00;
 
-            --nav-height: 70px;
+            --nav-height: 80px;
             --header-height: 70px;
             --border-radius: 24px;
         }
@@ -155,7 +153,6 @@
         .system-controls {
             position: absolute;
             top: 85px;
-            /* Below header */
             right: 20px;
             display: flex;
             gap: 10px;
@@ -204,14 +201,19 @@
             display: flex;
             flex-direction: column;
             padding: 20px;
-            padding-top: 60px;
-            /* Space for system controls */
-            padding-bottom: 100px;
+            padding-top: 60px; /* Space for system controls */
+            padding-bottom: 100px; /* Space for bottom nav */
             opacity: 0;
             pointer-events: none;
             transition: opacity 0.3s ease, transform 0.3s ease;
             transform: scale(0.98);
             overflow-y: auto;
+            /* Hide scrollbar */
+            scrollbar-width: none;
+        }
+
+        .screen::-webkit-scrollbar { 
+            display: none; 
         }
 
         .screen.active {
@@ -394,7 +396,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 15px;
-            padding-bottom: 100px;
+            padding-bottom: 40px;
         }
 
         .collect-card {
@@ -461,53 +463,21 @@
 
         /* --- ANIMATIONS --- */
         @keyframes slotBlur {
-            0% {
-                transform: translateY(-10px);
-                filter: blur(3px);
-            }
-
-            50% {
-                transform: translateY(10px);
-                filter: blur(3px);
-            }
-
-            100% {
-                transform: translateY(-10px);
-                filter: blur(3px);
-            }
+            0% { transform: translateY(-10px); filter: blur(3px); }
+            50% { transform: translateY(10px); filter: blur(3px); }
+            100% { transform: translateY(-10px); filter: blur(3px); }
         }
 
         @keyframes popIn {
-            0% {
-                transform: scale(0.5);
-                opacity: 0;
-            }
-
-            80% {
-                transform: scale(1.05);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0% { transform: scale(0.5); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         @keyframes shake {
-
-            0%,
-            100% {
-                transform: translateX(0);
-            }
-
-            25% {
-                transform: translateX(-5px);
-            }
-
-            75% {
-                transform: translateX(5px);
-            }
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
         }
 
         .shake-anim {
@@ -519,12 +489,10 @@
             font-size: 28px;
             pointer-events: none;
             z-index: 3000;
-            /* Improved Transition: Simple ease-in for flight looks more natural */
             transition: top 0.6s ease-in, left 0.6s ease-in, transform 0.6s linear, opacity 0.2s linear;
-            filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.2));
         }
 
-        /* Burst state (no transition or fast transition) */
         .flying-coin.burst {
             transition: transform 0.3s ease-out;
         }
@@ -561,7 +529,7 @@
             text-align: center;
             transform: scale(0.8);
             transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
 
         .modal-overlay.open .modal {
@@ -571,7 +539,7 @@
         .new-discovery-icon {
             font-size: 90px;
             margin: 20px 0;
-            filter: drop-shadow(0 15px 15px rgba(0, 0, 0, 0.15));
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.15));
             animation: popIn 0.5s 0.2s backwards;
         }
 
@@ -597,7 +565,7 @@
                 </div>
                 <div class="level-badge">LVL <span id="level-num">1</span></div>
             </div>
-
+            
             <div class="progress-container">
                 <div class="progress-fill" id="xp-bar"></div>
             </div>
@@ -621,10 +589,10 @@
 
     <!-- Main Viewport -->
     <div id="viewport">
-
+        
         <!-- GAME SCREEN -->
         <div id="screen-game" class="screen active">
-
+            
             <div class="machine-container">
                 <div class="slots-wrapper">
                     <div class="slot" id="slot-1">
@@ -669,8 +637,7 @@
             <i class="fas fa-gamepad"></i>
         </div>
         <div class="nav-item" onclick="ui.switchScreen('collection', this)">
-            <!-- UPDATED ICON -->
-            <i class="fas fa-shopping-bag"></i>
+            <i class="fas fa-th-large"></i>
         </div>
     </div>
 
@@ -680,8 +647,7 @@
             <h2 style="color: var(--gold-dark); margin:0; font-size: 24px;">NEW WEATHER DISCOVERED!</h2>
             <div class="new-discovery-icon" id="modal-icon">🌟</div>
             <h3 id="modal-name" style="margin: 0 0 10px 0; color: var(--primary-dark); font-size: 28px;">Element</h3>
-            <p id="modal-desc" style="color: var(--text-light); font-size: 15px; margin-bottom: 25px;">Description goes
-                here.</p>
+            <p id="modal-desc" style="color: var(--text-light); font-size: 15px; margin-bottom: 25px;">Description goes here.</p>
             <button class="btn-main" id="modal-ok-btn">AWESOME!</button>
         </div>
     </div>
@@ -743,7 +709,7 @@
                 "Plant": "🌱", "Tree": "🌳", "Forest": "🌲", "Seed": "🌰", "Flower": "🌻", "Garden": "🏡",
                 "Storm": "⛈️", "Lightning": "🌩️", "Wind": "🌬️", "Tornado": "🌪️", "Sand": "⏳", "Glass": "🥃", "Dust": "🌫️", "Smog": "🏭", "Fog": "🌫️",
                 "Sky": "🟦", "Rainbow": "🌈", "Night": "🌙", "Moon": "🌔", "Star": "⭐", "Galaxy": "🌌", "Eclipse": "🌑",
-                "Lava": "🌋", "Obsidian": "🖤", "Stone": "🗿", "Fire": "🔥", "Ash": "🌑", "Smoke": "💨"
+                "Lava": "🌋", "Obsidian": "🖤", "Stone": "🗿", "Fire": "🔥", "Ash": "🌑", "Smoke": "💨", "Dark": "⚫"
             }
         };
 
@@ -751,21 +717,21 @@
         const audioManager = {
             ctx: null,
             enabled: false,
-
-            init: function () {
+            
+            init: function() {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 this.ctx = new AudioContext();
             },
 
-            toggle: function () {
-                if (!this.ctx) this.init();
+            toggle: function() {
+                if(!this.ctx) this.init();
                 this.enabled = !this.enabled;
-
+                
                 const btn = document.getElementById('sound-btn');
                 const icon = btn.querySelector('i');
 
-                if (this.enabled) {
-                    if (this.ctx.state === 'suspended') this.ctx.resume();
+                if(this.enabled) {
+                    if(this.ctx.state === 'suspended') this.ctx.resume();
                     icon.classList.remove('fa-volume-mute');
                     icon.classList.add('fa-volume-up');
                     btn.classList.add('active-sound');
@@ -777,8 +743,8 @@
                 }
             },
 
-            playTone: function (freq, type, duration, vol = 0.1) {
-                if (!this.enabled) return;
+            playTone: function(freq, type, duration, vol=0.1) {
+                if(!this.enabled) return;
                 const osc = this.ctx.createOscillator();
                 const gain = this.ctx.createGain();
                 osc.type = type;
@@ -791,24 +757,23 @@
                 osc.stop(this.ctx.currentTime + duration);
             },
 
-            playWin: function () {
-                if (!this.enabled) return;
-                [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.3, 0.1), i * 80));
+            playWin: function() {
+                if(!this.enabled) return;
+                [523, 659, 784, 1046].forEach((f, i) => setTimeout(() => this.playTone(f, 'triangle', 0.3, 0.1), i*80));
             },
 
-            playCoin: function () {
-                if (!this.enabled) return;
+            playCoin: function() {
+                if(!this.enabled) return;
                 this.playTone(1200, 'sine', 0.1, 0.05);
                 setTimeout(() => this.playTone(1800, 'sine', 0.2, 0.05), 50);
             },
 
-            playSpin: function () {
-                // Louder, distinct "tick" sound
-                this.playTone(300 + Math.random() * 200, 'square', 0.05, 0.1);
+            playSpin: function() {
+                this.playTone(300 + Math.random()*200, 'square', 0.05, 0.1);
             },
 
-            playError: function () {
-                if (!this.enabled) return;
+            playError: function() {
+                if(!this.enabled) return;
                 this.playTone(150, 'sawtooth', 0.3, 0.2);
                 setTimeout(() => this.playTone(100, 'sawtooth', 0.3, 0.2), 100);
             }
@@ -816,19 +781,19 @@
 
         /* --- UI CONTROLLER --- */
         const ui = {
-            switchScreen: function (screenName, navEl) {
+            switchScreen: function(screenName, navEl) {
                 document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
                 navEl.classList.add('active');
 
                 document.querySelectorAll('.screen').forEach(el => el.classList.remove('active'));
                 document.getElementById(`screen-${screenName}`).classList.add('active');
 
-                if (screenName === 'collection') {
+                if(screenName === 'collection') {
                     game.renderCollection();
                 }
             },
 
-            updateLives: function (lives) {
+            updateLives: function(lives) {
                 const hearts = document.querySelectorAll('.heart-icon');
                 hearts.forEach((h, i) => {
                     if (i < lives) {
@@ -839,11 +804,11 @@
                 });
             },
 
-            animateCoins: function (amount) {
-                // START Point: The Machine Container (Spin Mixer)
+            animateCoins: function(amount) {
+                // START Point: The Machine Container
                 const startEl = document.querySelector('.machine-container');
                 const startRect = startEl.getBoundingClientRect();
-
+                
                 // END Point: The Coin Wallet in Header
                 const targetRect = document.getElementById('coin-target').getBoundingClientRect();
 
@@ -853,11 +818,11 @@
                 const targetX = targetRect.left + (targetRect.width / 2);
                 const targetY = targetRect.top + (targetRect.height / 2);
 
-                for (let i = 0; i < amount; i++) {
+                for(let i=0; i<amount; i++) {
                     setTimeout(() => {
                         const coin = document.createElement('div');
                         coin.innerHTML = '<i class="fas fa-coins"></i>';
-                        coin.className = 'flying-coin burst'; // Initial class for simple spawn
+                        coin.className = 'flying-coin burst';
                         coin.style.color = 'gold';
                         coin.style.left = `${startX}px`;
                         coin.style.top = `${startY}px`;
@@ -866,59 +831,58 @@
                         // Initial burst
                         const scatterX = (Math.random() - 0.5) * 80;
                         const scatterY = (Math.random() - 0.5) * 80 - 30;
-
+                        
                         // Force Reflow
                         void coin.offsetWidth;
 
-                        // Stage 1: Burst out (Fast, no magnet effect yet)
+                        // Stage 1: Burst out
                         coin.style.transform = `translate(${scatterX}px, ${scatterY}px) scale(1.3)`;
 
-                        // Stage 2: Fly to target (Remove burst class to enable smooth ease-in)
+                        // Stage 2: Fly to target
                         setTimeout(() => {
                             coin.classList.remove('burst');
                             coin.style.left = `${targetX}px`;
                             coin.style.top = `${targetY}px`;
-                            coin.style.transform = `translate(0, 0) scale(0.5)`; // Reset transform offset
+                            coin.style.transform = `translate(0, 0) scale(0.5)`;
                             coin.style.opacity = 0;
-                        }, 250); // Shorter wait for snappier feel
+                        }, 250);
 
                         setTimeout(() => {
                             coin.remove();
                             audioManager.playCoin();
                             game.addCoins(10);
-                        }, 850); // Matched with transition duration
-
+                        }, 850); 
                     }, i * 120);
                 }
             },
 
-            showModal: function (itemKey, onConfirm) {
-                const recipe = DATA.recipes.find(r => r.res === itemKey) || { desc: "A basic element." };
+            showModal: function(itemKey, onConfirm) {
+                const recipe = DATA.recipes.find(r => r.res === itemKey) || {desc: "A basic element."};
                 document.getElementById('modal-icon').innerText = DATA.icons[itemKey];
                 document.getElementById('modal-name').innerText = itemKey;
                 document.getElementById('modal-desc').innerText = recipe.desc;
-
+                
                 const overlay = document.getElementById('modal-overlay');
                 const btn = document.getElementById('modal-ok-btn');
-
+                
                 // Remove old listeners
                 const newBtn = btn.cloneNode(true);
                 btn.parentNode.replaceChild(newBtn, btn);
-
+                
                 newBtn.onclick = () => {
                     overlay.classList.remove('open');
-                    if (onConfirm) onConfirm();
+                    if(onConfirm) onConfirm();
                 };
 
                 overlay.classList.add('open');
                 audioManager.playWin();
             },
 
-            showGameOver: function () {
+            showGameOver: function() {
                 document.getElementById('modal-gameover').classList.add('open');
             },
 
-            hideGameOver: function () {
+            hideGameOver: function() {
                 document.getElementById('modal-gameover').classList.remove('open');
             }
         };
@@ -932,61 +896,100 @@
             lives: 3,
             currentTarget: null,
 
-            init: function () {
+            init: function() {
+                this.load(); // Load save data first
+
                 // Initialize with base ingredients if empty
-                if (this.inventory.length === 0) {
+                if(this.inventory.length === 0) {
                     this.inventory = [...DATA.baseIngredients];
                 }
+                
+                // If game was saved in a Game Over state, reset lives
+                if (this.lives <= 0) this.lives = 3;
+
                 this.updateXP();
                 this.updateCoins();
                 ui.updateLives(this.lives);
                 this.renderCollection();
             },
 
-            resetConfirm: function () {
-                if (confirm("Are you sure you want to reset your progress?")) {
-                    this.resetGame();
+            save: function() {
+                try {
+                    const state = {
+                        inventory: this.inventory,
+                        coins: this.coins,
+                        xp: this.xp,
+                        level: this.level,
+                        lives: this.lives
+                    };
+                    localStorage.setItem('weatherSpinnerSave', JSON.stringify(state));
+                } catch (e) {
+                    console.warn("Save failed (likely storage full or disabled):", e);
                 }
             },
 
-            resetGame: function () {
+            load: function() {
+                try {
+                    const saved = localStorage.getItem('weatherSpinnerSave');
+                    if (saved) {
+                        const state = JSON.parse(saved);
+                        this.inventory = state.inventory || [];
+                        this.coins = state.coins || 0;
+                        this.xp = state.xp || 0;
+                        this.level = state.level || 1;
+                        this.lives = (state.lives !== undefined) ? state.lives : 3;
+                    }
+                } catch (e) {
+                    console.warn("Load failed or file corrupted:", e);
+                }
+            },
+
+            resetConfirm: function() {
+                // if(confirm("Are you sure you want to reset your progress?")) {
+                    this.resetGame();
+                // }
+            },
+
+            resetGame: function() {
+                // 1. Reset Game State in Memory
                 this.inventory = [...DATA.baseIngredients];
                 this.coins = 0;
                 this.xp = 0;
                 this.lives = 3;
                 this.level = 1;
 
+                // 2. Update UI Components immediately
                 ui.hideGameOver();
                 ui.updateLives(this.lives);
-
-                // Reset Level Text Manually
-                document.getElementById('level-num').innerText = "1";
-                document.getElementById('xp-bar').style.width = "0%";
-
-                this.init();
-
-                // Reset UI state
+                this.updateXP();      
+                this.updateCoins();   
+                this.renderCollection(); 
+                
+                // 3. Reset Interactive Elements
                 document.getElementById('spin-btn').disabled = false;
                 document.getElementById('quiz-section').classList.remove('visible');
-                document.getElementById('screen-game').scrollTo({ top: 0, behavior: 'smooth' });
+                document.getElementById('screen-game').scrollTo({top:0, behavior:'smooth'});
+
+                // 4. Save the empty state (Done last so UI updates regardless of save success)
+                this.save(); 
             },
 
-            spin: function () {
-                if (!audioManager.ctx) audioManager.toggle();
+            spin: function() {
+                if(!audioManager.ctx) audioManager.toggle();
 
                 const btn = document.getElementById('spin-btn');
                 const quizSection = document.getElementById('quiz-section');
-
+                
                 btn.disabled = true;
                 quizSection.classList.remove('visible');
 
-                // Logic: Prioritize new discoveries
+                // Logic: Find recipes where user has both ingredients
                 let possibilities = [];
                 let unlockedPossibilities = [];
 
                 DATA.recipes.forEach(r => {
-                    if (this.inventory.includes(r.ing[0]) && this.inventory.includes(r.ing[1])) {
-                        if (!this.inventory.includes(r.res)) {
+                    if(this.inventory.includes(r.ing[0]) && this.inventory.includes(r.ing[1])) {
+                        if(!this.inventory.includes(r.res)) {
                             possibilities.push(r);
                         } else {
                             unlockedPossibilities.push(r);
@@ -994,13 +997,20 @@
                     }
                 });
 
-                if (possibilities.length === 0 && unlockedPossibilities.length > 0) {
+                // Prioritize new discoveries, but if none possible, show unlocked ones
+                if(possibilities.length === 0 && unlockedPossibilities.length > 0) {
                     possibilities = unlockedPossibilities;
-                } else if (possibilities.length === 0) {
-                    possibilities = unlockedPossibilities; // Failsafe
+                } else if(possibilities.length === 0) {
+                    // This shouldn't happen unless base data is wrong, but fail safe:
+                    possibilities = unlockedPossibilities;
                 }
-
-                this.currentTarget = possibilities[Math.floor(Math.random() * possibilities.length)];
+                
+                if (possibilities.length === 0) {
+                     // Failsafe for very first run if logic glitches, though base ingredients should ensure Steam
+                     this.currentTarget = DATA.recipes[0];
+                } else {
+                    this.currentTarget = possibilities[Math.floor(Math.random() * possibilities.length)];
+                }
 
                 // Animate Slots
                 const slot1 = document.getElementById('slot-1');
@@ -1014,19 +1024,19 @@
                 let count = 0;
                 const interval = setInterval(() => {
                     const keys = Object.keys(DATA.icons);
-                    slotContent1.innerText = DATA.icons[keys[Math.floor(Math.random() * keys.length)]];
-                    slotContent2.innerText = DATA.icons[keys[Math.floor(Math.random() * keys.length)]];
+                    slotContent1.innerText = DATA.icons[keys[Math.floor(Math.random()*keys.length)]];
+                    slotContent2.innerText = DATA.icons[keys[Math.floor(Math.random()*keys.length)]];
                     audioManager.playSpin();
 
                     count++;
-                    if (count > 15) {
+                    if(count > 15) {
                         clearInterval(interval);
                         this.stopSpin(slotContent1, slotContent2);
                     }
                 }, 80);
             },
 
-            stopSpin: function (el1, el2) {
+            stopSpin: function(el1, el2) {
                 el1.classList.remove('slot-blur');
                 el2.classList.remove('slot-blur');
 
@@ -1040,20 +1050,32 @@
                 }, 500);
             },
 
-            showQuiz: function () {
+            showQuiz: function() {
                 const section = document.getElementById('quiz-section');
                 const clue = document.getElementById('clue-text');
                 const container = document.getElementById('options-container');
 
-                clue.innerHTML = `What do you get if you mix <span style="color:var(--primary)">${this.currentTarget.ing[0]}</span> + <span style="color:var(--primary)">${this.currentTarget.ing[1]}</span>?`;
+                const i1 = this.currentTarget.ing[0];
+                const i2 = this.currentTarget.ing[1];
+
+                // Randomized templates to sound more natural and less hard-coded
+                const templates = [
+                    `What do you get if you combine <span style="color:var(--primary)">${i1}</span> + <span style="color:var(--primary)">${i2}</span>?`,
+                    `Merging <span style="color:var(--primary)">${i1}</span> and <span style="color:var(--primary)">${i2}</span> creates:`,
+                    `If you add <span style="color:var(--primary)">${i1}</span> to <span style="color:var(--primary)">${i2}</span>, you get:`,
+                    `<span style="color:var(--primary)">${i1}</span> + <span style="color:var(--primary)">${i2}</span> = ?`
+                ];
+
+                clue.innerHTML = templates[Math.floor(Math.random() * templates.length)];
 
                 container.innerHTML = '';
                 let options = [this.currentTarget.res];
                 const allItems = Object.keys(DATA.icons);
-
-                while (options.length < 3) {
+                
+                // Add 2 wrong answers
+                while(options.length < 3) {
                     const r = allItems[Math.floor(Math.random() * allItems.length)];
-                    if (!options.includes(r) && r !== this.currentTarget.res) options.push(r);
+                    if(!options.includes(r) && r !== 'Dark') options.push(r);
                 }
 
                 options.sort(() => Math.random() - 0.5);
@@ -1067,25 +1089,23 @@
                 });
 
                 section.classList.add('visible');
-                // Scroll slightly to show quiz
-                document.getElementById('screen-game').scrollTop = 200;
+                document.getElementById('screen-game').scrollTo({top: 200, behavior:'smooth'});
             },
 
-            checkAnswer: function (answer, element) {
-                if (answer === this.currentTarget.res) {
+            checkAnswer: function(answer, element) {
+                if(answer === this.currentTarget.res) {
                     // CORRECT
                     element.style.background = "#e8f5e9";
                     element.style.border = "2px solid var(--success)";
 
                     const isNew = !this.inventory.includes(answer);
-
-                    if (isNew) {
+                    
+                    if(isNew) {
                         this.inventory.push(answer);
                         this.xp += 25;
-                        // Wait slightly then show modal
+                        this.save(); // Save progress
                         setTimeout(() => {
                             ui.showModal(answer, () => {
-                                // Animation happens AFTER clicking "Awesome"
                                 ui.animateCoins(5);
                                 this.resetTurn();
                             });
@@ -1094,6 +1114,7 @@
                         // Repeat find
                         audioManager.playWin();
                         this.xp += 5;
+                        this.save(); // Save progress
                         ui.animateCoins(2);
                         this.resetTurn();
                     }
@@ -1108,48 +1129,48 @@
                     element.disabled = true;
 
                     this.lives--;
+                    this.save(); // Save life loss
                     ui.updateLives(this.lives);
 
-                    if (this.lives <= 0) {
+                    if(this.lives <= 0) {
                         setTimeout(() => ui.showGameOver(), 500);
                     }
                 }
             },
 
-            resetTurn: function () {
+            resetTurn: function() {
                 setTimeout(() => {
                     document.getElementById('spin-btn').disabled = false;
                     document.getElementById('quiz-section').classList.remove('visible');
-                    // Reset scroll
-                    document.getElementById('screen-game').scrollTo({ top: 0, behavior: 'smooth' });
+                    document.getElementById('screen-game').scrollTo({top:0, behavior:'smooth'});
                 }, 1000);
             },
 
-            addCoins: function (amount) {
+            addCoins: function(amount) {
                 this.coins += amount;
+                this.save(); // Save coins
                 this.updateCoins();
             },
 
-            updateCoins: function () {
+            updateCoins: function() {
                 const el = document.getElementById('coin-count');
                 el.innerText = this.coins;
                 el.parentElement.style.transform = "scale(1.1)";
                 setTimeout(() => el.parentElement.style.transform = "scale(1)", 100);
             },
 
-            updateXP: function () {
+            updateXP: function() {
                 const total = Object.keys(DATA.icons).length;
                 const current = this.inventory.length;
-
+                
                 this.level = Math.floor(this.xp / 100) + 1;
-
                 document.getElementById('level-num').innerText = this.level;
 
                 const pct = (current / total) * 100;
                 document.getElementById('xp-bar').style.width = `${pct}%`;
             },
 
-            renderCollection: function () {
+            renderCollection: function() {
                 const grid = document.getElementById('collection-grid');
                 grid.innerHTML = "";
 
@@ -1171,5 +1192,4 @@
 
     </script>
 </body>
-
 </html>

@@ -49,3 +49,6 @@ app.*.map.json
 *.keystore
 key.properties
 /android/key.properties
+
+# Local environment file (may contain production keys) - do NOT commit
+.env

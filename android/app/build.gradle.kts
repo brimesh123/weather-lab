@@ -30,7 +30,8 @@ android {
 
     defaultConfig {
         applicationId = "com.weatherspinner.app"
-        minSdk = flutter.minSdkVersion
+        // Explicitly set minSdk to 23 to satisfy Play Store / build requirements
+        minSdk = 23
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

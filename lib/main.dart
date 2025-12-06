@@ -91,13 +91,9 @@ class _HtmlGamePageState extends State<HtmlGamePage> {
       return;
     }
 
-    // Prefer production IDs from env when running release builds.
-    const testBannerAndroid = 'ca-app-pub-3940256099942544/6300978111';
-    const testBannerIOS = 'ca-app-pub-3940256099942544/2934735716';
-    final envBanner = dotenv.env['ADMOB_BANNER_ID'];
-    final adUnitId = kReleaseMode && envBanner != null && envBanner.isNotEmpty
-      ? envBanner
-      : (Platform.isAndroid ? testBannerAndroid : testBannerIOS);
+    // Always use your production banner ID (no test ads).
+    const prodBannerId = 'ca-app-pub-6415309989540146/4319929083';
+    final adUnitId = prodBannerId;
 
     _bannerAd = BannerAd(
       adUnitId: adUnitId,
@@ -122,12 +118,9 @@ class _HtmlGamePageState extends State<HtmlGamePage> {
   void _loadInterstitial() {
     if (kIsWeb || !(Platform.isAndroid || Platform.isIOS)) return;
 
-    const testInterstitialAndroid = 'ca-app-pub-3940256099942544/1033173712';
-    const testInterstitialIOS = 'ca-app-pub-3940256099942544/4411468910';
-    final envInterstitial = dotenv.env['ADMOB_INTERSTITIAL_ID'];
-    final interstitialUnitId = kReleaseMode && envInterstitial != null && envInterstitial.isNotEmpty
-        ? envInterstitial
-        : (Platform.isAndroid ? testInterstitialAndroid : testInterstitialIOS);
+    // Always use your production interstitial ID (no test ads).
+    const prodInterstitialId = 'ca-app-pub-6415309989540146/2050479651';
+    final interstitialUnitId = prodInterstitialId;
 
     InterstitialAd.load(
       adUnitId: interstitialUnitId,
